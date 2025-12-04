@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Agri Subsidy Portal</title>
+<style>
+    body {
+        font-family: Arial;
+        background: #eef4f7;
+        padding: 40px;
+    }
+    .container {
+        max-width: 520px;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        margin: auto;
+    }
+    input, select, button {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+    button {
+        background: #0b7dda;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    button:hover {
+        background: #095c9e;
+    }
+    #sliderVal {
+        font-weight: bold;
+        color: #0b7dda;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🌾 Agri Subsidy Allocation</h2>
+
+    <label>Aadhaar Number:</label>
+    <input id="aadhaar" placeholder="Enter Aadhaar">
+
+    <button onclick="fetchFarmer()">Get Farmer Details</button>
+
+    <div id="farmerInfo" style="margin-top:20px; display:none;">
+        <h3>Farmer Details</h3>
+        <p id="details"></p>
+
+        <button onclick="predictMax()">Predict Max Fertilizer Quantity</button>
+    </div>
+
+    <div id="predictionBox" style="margin-top:20px; display:none;">
+        <h3>Allowed Fertilizer Quantity</h3>
+        <p><b>Max Allowable (ML):</b> <span id="pred"></span> kg</p>
+        <p><b>Clamped Max:</b> <span id="clamped"></span> kg</p>
+        <p><b>Rule-Based Max:</b> <span id="rule"></span> kg</p>
+
+        <label>Select Quantity (kg):</label>
+        <input type="range" id="slider" min="0" value="0" oninput="updateSlider()">
+        <p>Selected: <span id="sliderVal">0</span> kg</p>
+
+        <button onclick="submitRequest()">Submit Request</button>
+    </div>
+
+    <div id="resultBox" style="margin-top:20px; display:none;">
+        <h3>Result</h3>
+        <p id="result"></p>
+    </div>
+
+</div>
+
+<script>
+const API_BASE = "http://127.0.0.1:8000";
+
+async function fetchFarmer() {
+    let aadhaar = document.getElementById("aadhaar").value;
+    if (!aadhaar) { alert("Enter Aadhaar"); return; }
+
+    let res = await fetch(`${API_BASE}/get_farmer/?aadhaar=${aadhaar}`, { method: "POST" });
+
+    if (!res.ok) {
+        alert("Aadhaar not found!");
+        return;
+    }
+
+    let data = await res.json();
+
+    document.getElementById("farmerInfo").style.display = "block";
+    document.getElementById("details").innerHTML =
+        `<b>State:</b> ${data.state}<br>
+         <b>District:</b> ${data.district}<br>
+         <b>Land:</b> ${data.land_size_acres} acres<br>
+         <b>Crop:</b> ${data.usual_crop}`;
+
+    window.currentFarmer = data;
+}
+
+async function predictMax() {
+    let aadhaar = document.getElementById("aadhaar").value;
+
+    let res = await fetch(`${API_BASE}/predict_max_qty/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ aadhaar })
+    });
+
+    let data = await res.json();
+
+    document.getElementById("predictionBox").style.display = "block";
+
+    document.getElementById("pred").innerText = data.predicted_max_qty_kg;
+    document.getElementById("clamped").innerText = data.predicted_max_qty_kg_clamped;
+    document.getElementById("rule").innerText = data.rule_max_qty_kg;
+
+    let slider = document.getElementById("slider");
+    slider.max = data.predicted_max_qty_kg_clamped;
+    slider.value = 0;
+    document.getElementById("sliderVal").innerText = 0;
+
+    window.predData = data;
+}
+
+function updateSlider() {
+    let val = document.getElementById("slider").value;
+    document.getElementById("sliderVal").innerText = val;
+}
+
+async function submitRequest() {
+    let aadhaar = document.getElementById("aadhaar").value;
+    let qty = document.getElementById("slider").value;
+
+    let res = await fetch(`${API_BASE}/submit_request/`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ aadhaar, requested_qty_kg: Number(qty) })
+    });
+
+    let data = await res.json();
+
+    document.getElementById("resultBox").style.display = "block";
+
+    if (data.approved)
+        document.getElementById("result").innerHTML = "✅ <b>Approved!</b> Your request is valid.";
+    else
+        document.getElementById("result").innerHTML = "❌ <b>Rejected!</b> Quantity exceeds allowed limit.";
+}
+</script>
+
+</body>
+</html>
