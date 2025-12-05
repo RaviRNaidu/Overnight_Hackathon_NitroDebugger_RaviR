@@ -1,5 +1,5 @@
 // Application Tracker Handler
-const API_URL = 'http://localhost:8002';
+const API_URL = 'http://localhost:8000';
 
 document.getElementById('trackerForm').addEventListener('submit', async (e) => {
     e.preventDefault();

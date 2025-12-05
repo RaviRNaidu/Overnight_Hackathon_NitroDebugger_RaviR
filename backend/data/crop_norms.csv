@@ -1,0 +1,40 @@
+crop,fertilizer_kg_per_acre,seed_kg_per_acre
+Paddy,50,2
+Maize,30,1.5
+Cotton,40,1
+Wheat,45,2.5
+Sugarcane,60,3
+Groundnut,25,1
+Millet,20,1.2
+Soybean,35,1.5
+Turmeric,30,3
+Chickpea,25,1.8
+Red Gram (Toor),20,1.0
+Green Gram (Moong),18,0.8
+Black Gram (Urad),20,0.9
+Sunflower,25,1.2
+Mustard,30,1.5
+Sesame (Til),15,0.8
+Barley,40,2.2
+Sorghum (Jowar),30,1.0
+Pearl Millet (Bajra),25,1.0
+Banana,70,5
+Potato,50,3
+Tomato,40,0.5
+Onion,35,1.5
+Chilli,25,0.4
+Brinjal,30,0.4
+Cabbage,25,0.3
+Cauliflower,25,0.3
+Peas,20,1.8
+Carrot,20,1.5
+Okra,20,1.0
+Coriander,15,0.6
+Spinach,10,0.5
+Papaya,40,2
+Grapes,50,3
+Mango,20,1
+Tea,45,2
+Coffee,40,1.5
+Areca Nut,30,1
+Coconut,25,1

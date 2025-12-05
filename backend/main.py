@@ -35,9 +35,11 @@ else:
     farmer_reg = pd.read_csv(REG_PATH, dtype={"aadhaar": str})
 
 # ---------- Load ML model ----------
-if not os.path.exists(MODEL_PATH):
-    raise FileNotFoundError(f"Model file not found at {MODEL_PATH}. Place max_qty_model.pkl here.")
-model_pipe = joblib.load(MODEL_PATH)
+# Temporarily disabled due to sklearn version mismatch
+# if not os.path.exists(MODEL_PATH):
+#     raise FileNotFoundError(f"Model file not found at {MODEL_PATH}. Place max_qty_model.pkl here.")
+# model_pipe = joblib.load(MODEL_PATH)
+model_pipe = None  # Disabled temporarily
 
 # ---------- Ensure transaction log exists ----------
 if not os.path.exists(TRANSACTIONS_CSV):
@@ -178,8 +180,14 @@ def predict_max(req: PredictRequest):
     # Build feature vector and predict
     feat = build_feature_row(farmer_row)
     X_df = pd.DataFrame([feat])
-    # Ensure ordering of columns matches pipeline - pipeline handles unknown columns so passthrough is fine
-    pred = float(model_pipe.predict(X_df)[0])
+    
+    # Use model if available, otherwise use rule-based calculation
+    if model_pipe is not None:
+        pred = float(model_pipe.predict(X_df)[0])
+    else:
+        # Fallback to rule-based calculation when model is unavailable
+        rule_max = compute_rule_max(feat['land_size_acres'], feat['crop_type'])
+        pred = rule_max
 
     # Compute rule-based max and clamp predicted value within a safe bound
     rule_max = compute_rule_max(feat['land_size_acres'], feat['crop_type'])
@@ -204,7 +212,14 @@ def submit_request(body: SubmitRequest):
         raise HTTPException(status_code=404, detail="Aadhaar not found; cannot submit.")
     feat = build_feature_row(reg)
     X_df = pd.DataFrame([feat])
-    pred = float(model_pipe.predict(X_df)[0])
+    
+    # Use model if available, otherwise use rule-based calculation
+    if model_pipe is not None:
+        pred = float(model_pipe.predict(X_df)[0])
+    else:
+        # Fallback to rule-based calculation when model is unavailable
+        rule_max = compute_rule_max(reg.get("land_size_acres", 2.0), body.crop)
+        pred = rule_max
     rule_max = compute_rule_max(feat['land_size_acres'], feat['crop_type'])
     upper_bound = max(rule_max * 1.15, 0.0)
     approved = False

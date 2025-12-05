@@ -1,5 +1,5 @@
 ﻿// Application Form Handler
-const API_URL = 'http://localhost:8002';
+const API_URL = 'http://localhost:8000';
 
 let aadhaarVerified = false;
 let verifiedAadhaarData = null;

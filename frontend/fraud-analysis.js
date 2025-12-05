@@ -1,5 +1,5 @@
 // Fraud Analysis Dashboard
-const API_URL = 'http://localhost:8002';
+const API_URL = 'http://localhost:8000';
 
 let analysisResults = null;
 

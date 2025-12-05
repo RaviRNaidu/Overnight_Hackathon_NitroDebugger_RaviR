@@ -1,5 +1,5 @@
 // Authentication System
-const API_URL = 'http://localhost:8002';
+const API_URL = 'http://localhost:8000';
 
 // Check if user is already logged in
 function checkAuthentication() {
