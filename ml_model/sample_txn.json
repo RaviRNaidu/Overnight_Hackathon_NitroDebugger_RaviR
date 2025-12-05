@@ -1,0 +1,16 @@
+{
+  "txn_id":"CASE_QTY_INFLATE",
+  "farmer_id":"F000123",
+  "dealer_id":"D000345",
+  "crop_type":"Wheat",
+  "quantity_kg":10,
+  "subsidy_amount":500,
+  "invoice_no":"INV-QTY-2",
+  "claimed_land_area_ha":1.0,
+  "geo_lat":16.1500,
+  "geo_lon":75.9500,
+  "txn_date":"2025-1-12",
+  "txn_time":"14:22:10",
+  "mode_of_delivery":"POS",
+  "payment_mode":"BankTransfer"
+}

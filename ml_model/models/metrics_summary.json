@@ -1,0 +1,19 @@
+{
+  "isolation_forest": {
+    "model": "isolation_forest",
+    "train_mean_score": 0.059505121103339054,
+    "train_std_score": 0.047187515635213,
+    "val_mean_score": 0.05629792748926174,
+    "val_std_score": 0.047005271729084565,
+    "precision_100": 0.49,
+    "precision_500": 0.396
+  },
+  "xgboost": {
+    "model": "xgboost",
+    "auc": 0.9214855879084964,
+    "precision": 0.9260598093986198,
+    "recall": 0.841948013146101,
+    "precision_100": 0.01,
+    "precision_500": 0.036
+  }
+}
