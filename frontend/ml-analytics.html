@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Analytics Dashboard - Farmer Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .analytics-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .analytics-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .analytics-header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        .analytics-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card.critical {
+            border-left: 4px solid #dc3545;
+        }
+
+        .stat-card.warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .stat-card.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .stat-card.info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-change {
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .fraud-check-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .btn-check-fraud {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-check-fraud:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .prediction-result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .prediction-result.low {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .prediction-result.medium {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+        }
+
+        .prediction-result.high {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .prediction-result.critical {
+            background: #f5c6cb;
+            border: 2px solid #dc3545;
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .risk-badge.low {
+            background: #28a745;
+            color: white;
+        }
+
+        .risk-badge.medium {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .risk-badge.high {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .risk-badge.critical {
+            background: #dc3545;
+            color: white;
+        }
+
+        .high-risk-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .high-risk-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .high-risk-table td {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .high-risk-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .seasonal-recommendations {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .seasonal-recommendations h3 {
+            margin-top: 0;
+        }
+
+        .recommendation-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendation-list li {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+        }
+
+        .trend-chart {
+            min-height: 300px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="analytics-container">
+        <!-- Header -->
+        <div class="analytics-header">
+            <h1>🤖 ML Analytics Dashboard</h1>
+            <p>Advanced Machine Learning Fraud Detection & Analytics</p>
+            <p style="font-size: 0.9em; opacity: 0.8;">
+                Powered by Isolation Forest & XGBoost Models
+            </p>
+        </div>
+
+        <!-- Seasonal Recommendations -->
+        <div id="seasonalRecommendations" class="seasonal-recommendations" style="display: none;">
+            <h3>📅 Seasonal Recommendations</h3>
+            <p id="currentSeason"></p>
+            <div id="recommendationContent"></div>
+        </div>
+
+        <!-- Key Statistics -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card info">
+                <div class="stat-label">Total Transactions</div>
+                <div class="stat-value" id="totalTransactions">-</div>
+            </div>
+            <div class="stat-card critical">
+                <div class="stat-label">Suspected Frauds</div>
+                <div class="stat-value" id="suspectedFrauds">-</div>
+                <div class="stat-change" id="fraudRate"></div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-label">Total Fraud Amount</div>
+                <div class="stat-value" id="fraudAmount">-</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">Model Accuracy</div>
+                <div class="stat-value" id="modelAccuracy">-</div>
+            </div>
+        </div>
+
+        <!-- ML Fraud Check Panel -->
+        <div class="fraud-check-panel">
+            <h2>🔍 Real-Time ML Fraud Detection</h2>
+            <p>Enter transaction details to check fraud probability using ML models</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Product Type</label>
+                    <select id="productType">
+                        <option value="Fertilizer">Fertilizer</option>
+                        <option value="Seeds">Seeds</option>
+                        <option value="Pesticide">Pesticide</option>
+                        <option value="Urea">Urea</option>
+                        <option value="DAP">DAP</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Season</label>
+                    <select id="season">
+                        <option value="Rabi">Rabi (Oct-Mar)</option>
+                        <option value="Kharif">Kharif (Jun-Sep)</option>
+                        <option value="Zaid">Zaid (Apr-May)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quantity (kg)</label>
+                    <input type="number" id="quantityKg" placeholder="Enter quantity" value="150">
+                </div>
+                <div class="form-group">
+                    <label>Claimed Land Area (hectares)</label>
+                    <input type="number" id="claimedLandArea" placeholder="Enter claimed area" value="2.5">
+                </div>
+                <div class="form-group">
+                    <label>Actual Land Holding (hectares)</label>
+                    <input type="number" id="landHolding" placeholder="Enter actual land" value="2.0">
+                </div>
+                <div class="form-group">
+                    <label>Subsidy Amount (₹)</label>
+                    <input type="number" id="subsidyAmount" placeholder="Enter subsidy" value="3500">
+                </div>
+            </div>
+
+            <button class="btn-check-fraud" onclick="checkMLFraud()">
+                Run ML Fraud Detection
+            </button>
+
+            <div id="predictionResult" class="prediction-result"></div>
+        </div>
+
+        <!-- Charts and Analysis -->
+        <div class="chart-container">
+            <div class="chart-title">📊 Transaction Trends</div>
+            <div id="trendChart" class="trend-chart"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- High Risk Farmers -->
+            <div class="chart-container">
+                <div class="chart-title">⚠️ High Risk Farmers</div>
+                <table class="high-risk-table" id="highRiskFarmers">
+                    <thead>
+                        <tr>
+                            <th>Farmer ID</th>
+                            <th>Fraud Count</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- High Risk Dealers -->
+            <div class="chart-container">
+                <div class="chart-title">⚠️ High Risk Dealers</div>
+                <table class="high-risk-table" id="highRiskDealers">
+                    <thead>
+                        <tr>
+                            <th>Dealer ID</th>
+                            <th>Fraud Count</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Fraud Summary -->
+        <div class="chart-container">
+            <div class="chart-title">📈 Fraud Summary by Category</div>
+            <div id="fraudSummary"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+
+        // Load all analytics data on page load
+        window.onload = function() {
+            loadStatistics();
+            loadSeasonalRecommendations();
+            loadHighRiskEntities();
+            loadTransactionTrends();
+            loadFraudSummary();
+        };
+
+        async function loadStatistics() {
+            try {
+                const response = await fetch(`${API_BASE}/ml/statistics`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.statistics;
+                    
+                    document.getElementById('totalTransactions').textContent = 
+                        stats.total_transactions?.toLocaleString() || '0';
+                    
+                    document.getElementById('suspectedFrauds').textContent = 
+                        stats.suspected_frauds?.toLocaleString() || '0';
+                    
+                    document.getElementById('fraudRate').textContent = 
+                        `${stats.fraud_rate?.toFixed(2) || '0'}% fraud rate`;
+                    
+                    document.getElementById('fraudAmount').textContent = 
+                        `₹${(stats.total_fraud_amount || 0).toLocaleString()}`;
+                    
+                    // Display model metrics if available
+                    if (stats.model_metrics?.xgboost?.auc) {
+                        document.getElementById('modelAccuracy').textContent = 
+                            `${(stats.model_metrics.xgboost.auc * 100).toFixed(1)}%`;
+                    } else {
+                        document.getElementById('modelAccuracy').textContent = 'N/A';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        async function loadSeasonalRecommendations() {
+            try {
+                const response = await fetch(`${API_BASE}/ml/seasonal-recommendations`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const rec = data.recommendations;
+                    const recDiv = document.getElementById('seasonalRecommendations');
+                    
+                    document.getElementById('currentSeason').textContent = 
+                        `Current Season: ${rec.season}`;
+                    
+                    let html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">';
+                    
+                    if (rec.recommended_products?.length > 0) {
+                        html += '<div><h4>Recommended Products:</h4><ul class="recommendation-list">';
+                        rec.recommended_products.forEach(product => {
+                            html += `<li>✓ ${product}</li>`;
+                        });
+                        html += '</ul></div>';
+                    }
+                    
+                    if (rec.recommended_crops?.length > 0) {
+                        html += '<div><h4>Recommended Crops:</h4><ul class="recommendation-list">';
+                        rec.recommended_crops.forEach(crop => {
+                            html += `<li>🌾 ${crop}</li>`;
+                        });
+                        html += '</ul></div>';
+                    }
+                    
+                    html += '</div>';
+                    document.getElementById('recommendationContent').innerHTML = html;
+                    recDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading recommendations:', error);
+            }
+        }
+
+        async function loadHighRiskEntities() {
+            try {
+                const response = await fetch(`${API_BASE}/ml/high-risk-entities`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const risks = data.high_risk;
+                    
+                    // High Risk Farmers
+                    const farmersTable = document.getElementById('highRiskFarmers').getElementsByTagName('tbody')[0];
+                    farmersTable.innerHTML = '';
+                    
+                    if (risks.high_risk_farmers?.length > 0) {
+                        risks.high_risk_farmers.slice(0, 10).forEach(farmer => {
+                            const row = farmersTable.insertRow();
+                            row.insertCell(0).textContent = farmer.farmer_id;
+                            row.insertCell(1).innerHTML = `<span class="risk-badge critical">${farmer.fraud_count}</span>`;
+                        });
+                    } else {
+                        const row = farmersTable.insertRow();
+                        row.insertCell(0).colSpan = 2;
+                        row.cells[0].textContent = 'No high-risk farmers detected';
+                        row.cells[0].style.textAlign = 'center';
+                    }
+                    
+                    // High Risk Dealers
+                    const dealersTable = document.getElementById('highRiskDealers').getElementsByTagName('tbody')[0];
+                    dealersTable.innerHTML = '';
+                    
+                    if (risks.high_risk_dealers?.length > 0) {
+                        risks.high_risk_dealers.slice(0, 10).forEach(dealer => {
+                            const row = dealersTable.insertRow();
+                            row.insertCell(0).textContent = dealer.dealer_id;
+                            row.insertCell(1).innerHTML = `<span class="risk-badge critical">${dealer.fraud_count}</span>`;
+                        });
+                    } else {
+                        const row = dealersTable.insertRow();
+                        row.insertCell(0).colSpan = 2;
+                        row.cells[0].textContent = 'No high-risk dealers detected';
+                        row.cells[0].style.textAlign = 'center';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading high-risk entities:', error);
+            }
+        }
+
+        async function loadTransactionTrends() {
+            try {
+                const response = await fetch(`${API_BASE}/ml/transaction-trends`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const trends = data.trends;
+                    let html = '<div style="padding: 20px;">';
+                    
+                    html += `<h4>Summary</h4>`;
+                    html += `<p>Total Transactions: <strong>${trends.total_transactions?.toLocaleString()}</strong></p>`;
+                    html += `<p>Average Subsidy: <strong>₹${trends.avg_subsidy_amount?.toFixed(2)}</strong></p>`;
+                    html += `<p>Total Quantity: <strong>${trends.total_quantity_kg?.toLocaleString()} kg</strong></p>`;
+                    
+                    if (trends.product_distribution) {
+                        html += '<h4>Product Distribution</h4><ul>';
+                        for (const [product, count] of Object.entries(trends.product_distribution)) {
+                            html += `<li>${product}: ${count} transactions</li>`;
+                        }
+                        html += '</ul>';
+                    }
+                    
+                    html += '</div>';
+                    document.getElementById('trendChart').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading trends:', error);
+            }
+        }
+
+        async function loadFraudSummary() {
+            try {
+                const response = await fetch(`${API_BASE}/ml/fraud-summary`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const summary = data.summary;
+                    let html = '<div style="padding: 20px;">';
+                    
+                    if (summary.fraud_by_product) {
+                        html += '<h4>Fraud Cases by Product Type</h4><ul>';
+                        for (const [product, count] of Object.entries(summary.fraud_by_product)) {
+                            html += `<li>${product}: <span class="risk-badge high">${count}</span> cases</li>`;
+                        }
+                        html += '</ul>';
+                    }
+                    
+                    if (summary.fraud_by_season) {
+                        html += '<h4>Fraud Cases by Season</h4><ul>';
+                        for (const [season, count] of Object.entries(summary.fraud_by_season)) {
+                            html += `<li>${season}: <span class="risk-badge high">${count}</span> cases</li>`;
+                        }
+                        html += '</ul>';
+                    }
+                    
+                    html += '</div>';
+                    document.getElementById('fraudSummary').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading fraud summary:', error);
+            }
+        }
+
+        async function checkMLFraud() {
+            const resultDiv = document.getElementById('predictionResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'prediction-result';
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Running ML models...</p></div>';
+            
+            try {
+                const requestData = {
+                    product_type: document.getElementById('productType').value,
+                    season: document.getElementById('season').value,
+                    quantity_kg: parseFloat(document.getElementById('quantityKg').value),
+                    claimed_land_area_ha: parseFloat(document.getElementById('claimedLandArea').value),
+                    land_holding_ha: parseFloat(document.getElementById('landHolding').value),
+                    subsidy_amount: parseFloat(document.getElementById('subsidyAmount').value)
+                };
+
+                const response = await fetch(`${API_BASE}/ml/fraud-check`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    const prediction = data.ml_prediction;
+                    const riskLevel = prediction.risk_level.toLowerCase();
+                    
+                    resultDiv.className = `prediction-result ${riskLevel}`;
+                    
+                    let html = `
+                        <h3>ML Prediction Results</h3>
+                        <div style="margin: 15px 0;">
+                            <strong>Risk Level:</strong> 
+                            <span class="risk-badge ${riskLevel}">${prediction.risk_level}</span>
+                        </div>
+                        <div style="margin: 15px 0;">
+                            <strong>Recommendation:</strong> ${prediction.recommendation}
+                        </div>
+                        <div style="margin: 15px 0;">
+                            <strong>Isolation Forest Score:</strong> ${prediction.isolation_score.toFixed(4)}<br>
+                            <strong>XGBoost Probability:</strong> ${(prediction.xgb_probability * 100).toFixed(2)}%
+                        </div>
+                    `;
+                    
+                    if (prediction.reasons && prediction.reasons.length > 0) {
+                        html += '<div style="margin-top: 15px;"><strong>Reasons for Alert:</strong><ul>';
+                        prediction.reasons.forEach(reason => {
+                            html += `<li>${reason}</li>`;
+                        });
+                        html += '</ul></div>';
+                    }
+                    
+                    if (prediction.details?.features) {
+                        const features = prediction.details.features;
+                        html += '<div style="margin-top: 15px;"><strong>Feature Analysis:</strong><ul>';
+                        html += `<li>Quantity per Hectare: ${features.quantity_per_hectare?.toFixed(2)} kg/ha</li>`;
+                        html += `<li>Farmer Transaction History: ${features.farmer_total_transactions} transactions</li>`;
+                        html += `<li>Dealer Network Size: ${features.dealer_total_farmers} farmers</li>`;
+                        html += '</ul></div>';
+                    }
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.className = 'prediction-result medium';
+                    resultDiv.innerHTML = `<p><strong>Error:</strong> ${data.detail || 'Failed to get prediction'}</p>`;
+                }
+            } catch (error) {
+                resultDiv.className = 'prediction-result medium';
+                resultDiv.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Government Portal Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-seedling"></i>
+                <span>Farmer Portal</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="application-form.html"><i class="fas fa-file-alt"></i> Application Form</a></li>
+                <li><a href="application-tracker.html"><i class="fas fa-search"></i> Application Tracker</a></li>
+                <li><a href="government-login.html" class="active"><i class="fas fa-university"></i> Government Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="login-container">
+        <div class="login-header">
+            <i class="fas fa-university"></i>
+            <h1>Government Portal Login</h1>
+            <p>Authorized Government Officers Only</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="userId">Government ID *</label>
+                <input type="text" id="userId" name="userId" required 
+                       placeholder="Enter your government ID">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password *</label>
+                <input type="password" id="password" name="password" required 
+                       placeholder="Enter your password">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">
+                <i class="fas fa-sign-in-alt"></i> Login to Government Portal
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; padding: 15px; background: #e7f3ff; border-radius: 5px;">
+            <small style="color: #004085;">
+                <strong>Demo Credentials:</strong><br>
+                ID: gov_admin | Password: gov@123<br>
+                ID: gov_officer | Password: gov@456
+            </small>
+        </div>
+
+        <div style="text-align: center; margin-top: 1rem; color: var(--gray);">
+            <small>For authorized government personnel only</small>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 Department of Agriculture. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const API_URL = 'http://localhost:8002';
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const userId = document.getElementById('userId').value.trim();
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        password: password,
+                        department: 'government'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Check if user is from government department
+                    if (data.user.department !== 'government') {
+                        showAlert('Access denied. This portal is for government officers only.', 'error');
+                        return;
+                    }
+                    
+                    // Store user data
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('userId', data.user.id);
+                    
+                    showAlert('Login successful! Redirecting...', 'success');
+                    
+                    // Redirect to government portal
+                    setTimeout(() => {
+                        window.location.href = 'government-portal.html';
+                    }, 1000);
+                } else {
+                    showAlert(data.message || 'Invalid credentials', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('Login failed. Please check your connection and try again.', 'error');
+            }
+        });
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            
+            alertContainer.innerHTML = `
+                <div class="alert ${alertClass}">
+                    ${message}
+                </div>
+            `;
+            
+            if (type === 'error') {
+                setTimeout(() => {
+                    alertContainer.innerHTML = '';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>

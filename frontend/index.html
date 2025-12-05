@@ -1,157 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Agri Subsidy Portal</title>
-<style>
-    body {
-        font-family: Arial;
-        background: #eef4f7;
-        padding: 40px;
-    }
-    .container {
-        max-width: 520px;
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        margin: auto;
-    }
-    input, select, button {
-        width: 100%;
-        padding: 10px;
-        margin: 8px 0;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-    }
-    button {
-        background: #0b7dda;
-        color: white;
-        cursor: pointer;
-        font-weight: bold;
-    }
-    button:hover {
-        background: #095c9e;
-    }
-    #sliderVal {
-        font-weight: bold;
-        color: #0b7dda;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Login - Farmer Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-seedling"></i>
+                <span>Farmer Portal</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="application-form.html"><i class="fas fa-file-alt"></i> Application Form</a></li>
+                <li><a href="application-tracker.html"><i class="fas fa-search"></i> Application Tracker</a></li>
+                <li><a href="government-login.html"><i class="fas fa-university"></i> Government Portal</a></li>
+                <li><a href="agriculture-login.html" class="active"><i class="fas fa-tractor"></i> Department Login</a></li>
+            </ul>
+        </div>
+    </nav>
 
-<div class="container">
-    <h2>🌾 Agri Subsidy Allocation</h2>
+    <div class="login-container">
+        <div class="login-header">
+            <i class="fas fa-tractor"></i>
+            <h1>Department Login</h1>
+            <p>Agriculture Department Official Portal</p>
+        </div>
 
-    <label>Aadhaar Number:</label>
-    <input id="aadhaar" placeholder="Enter Aadhaar">
+        <div id="alertContainer"></div>
 
-    <button onclick="fetchFarmer()">Get Farmer Details</button>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="userId">User ID *</label>
+                <input type="text" id="userId" name="userId" required 
+                       placeholder="Enter your user ID">
+            </div>
 
-    <div id="farmerInfo" style="margin-top:20px; display:none;">
-        <h3>Farmer Details</h3>
-        <p id="details"></p>
+            <div class="form-group">
+                <label for="password">Password *</label>
+                <input type="password" id="password" name="password" required 
+                       placeholder="Enter your password">
+            </div>
 
-        <button onclick="predictMax()">Predict Max Fertilizer Quantity</button>
+            <button type="submit" class="btn btn-primary btn-full">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1rem; color: var(--gray);">
+            <small>For official use only</small>
+        </div>
     </div>
 
-    <div id="predictionBox" style="margin-top:20px; display:none;">
-        <h3>Allowed Fertilizer Quantity</h3>
-        <p><b>Max Allowable (ML):</b> <span id="pred"></span> kg</p>
-        <p><b>Clamped Max:</b> <span id="clamped"></span> kg</p>
-        <p><b>Rule-Based Max:</b> <span id="rule"></span> kg</p>
+    <footer class="footer">
+        <p>&copy; 2025 Department of Agriculture. All rights reserved.</p>
+    </footer>
 
-        <label>Select Quantity (kg):</label>
-        <input type="range" id="slider" min="0" value="0" oninput="updateSlider()">
-        <p>Selected: <span id="sliderVal">0</span> kg</p>
-
-        <button onclick="submitRequest()">Submit Request</button>
-    </div>
-
-    <div id="resultBox" style="margin-top:20px; display:none;">
-        <h3>Result</h3>
-        <p id="result"></p>
-    </div>
-
-</div>
-
-<script>
-const API_BASE = "http://127.0.0.1:8000";
-
-async function fetchFarmer() {
-    let aadhaar = document.getElementById("aadhaar").value;
-    if (!aadhaar) { alert("Enter Aadhaar"); return; }
-
-    let res = await fetch(`${API_BASE}/get_farmer/?aadhaar=${aadhaar}`, { method: "POST" });
-
-    if (!res.ok) {
-        alert("Aadhaar not found!");
-        return;
-    }
-
-    let data = await res.json();
-
-    document.getElementById("farmerInfo").style.display = "block";
-    document.getElementById("details").innerHTML =
-        `<b>State:</b> ${data.state}<br>
-         <b>District:</b> ${data.district}<br>
-         <b>Land:</b> ${data.land_size_acres} acres<br>
-         <b>Crop:</b> ${data.usual_crop}`;
-
-    window.currentFarmer = data;
-}
-
-async function predictMax() {
-    let aadhaar = document.getElementById("aadhaar").value;
-
-    let res = await fetch(`${API_BASE}/predict_max_qty/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ aadhaar })
-    });
-
-    let data = await res.json();
-
-    document.getElementById("predictionBox").style.display = "block";
-
-    document.getElementById("pred").innerText = data.predicted_max_qty_kg;
-    document.getElementById("clamped").innerText = data.predicted_max_qty_kg_clamped;
-    document.getElementById("rule").innerText = data.rule_max_qty_kg;
-
-    let slider = document.getElementById("slider");
-    slider.max = data.predicted_max_qty_kg_clamped;
-    slider.value = 0;
-    document.getElementById("sliderVal").innerText = 0;
-
-    window.predData = data;
-}
-
-function updateSlider() {
-    let val = document.getElementById("slider").value;
-    document.getElementById("sliderVal").innerText = val;
-}
-
-async function submitRequest() {
-    let aadhaar = document.getElementById("aadhaar").value;
-    let qty = document.getElementById("slider").value;
-
-    let res = await fetch(`${API_BASE}/submit_request/`, {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ aadhaar, requested_qty_kg: Number(qty) })
-    });
-
-    let data = await res.json();
-
-    document.getElementById("resultBox").style.display = "block";
-
-    if (data.approved)
-        document.getElementById("result").innerHTML = "✅ <b>Approved!</b> Your request is valid.";
-    else
-        document.getElementById("result").innerHTML = "❌ <b>Rejected!</b> Quantity exceeds allowed limit.";
-}
-</script>
-
+    <script src="login.js"></script>
+    <script>
+        // Set department type
+        window.DEPARTMENT_TYPE = 'agriculture';
+    </script>
 </body>
 </html>

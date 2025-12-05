@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Tracker - Farmer Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-seedling"></i>
+                <span>Farmer Portal</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="application-form.html"><i class="fas fa-file-alt"></i> Application Form</a></li>
+                <li><a href="application-tracker.html" class="active"><i class="fas fa-search"></i> Application Tracker</a></li><li><a href="history.html"><i class="fas fa-history"></i> History</a></li><li><a href="fraud-analysis.html"><i class="fas fa-shield-alt"></i> Fraud Analysis</a></li>
+                <li id="userInfo"></li><li><a href="#" onclick="logout(); return false;" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <div class="form-header">
+            <i class="fas fa-search"></i>
+            <h1>Track Your Application</h1>
+            <p>Enter your details to check application status</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <form id="trackerForm">
+            <div class="form-group">
+                <label for="applicationId">Application ID *</label>
+                <input type="text" id="applicationId" name="applicationId" required 
+                       placeholder="Enter your application ID">
+            </div>
+
+            <div class="form-group">
+                <label for="mobileNumber">Mobile Number *</label>
+                <input type="tel" id="mobileNumber" name="mobileNumber" required 
+                       placeholder="10-digit mobile number" maxlength="10" pattern="\d{10}">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">
+                <i class="fas fa-search"></i> Track Application
+            </button>
+        </form>
+
+        <div id="trackerResult" class="tracker-result" style="display: none;">
+            <h3><i class="fas fa-info-circle"></i> Application Details</h3>
+            <div class="result-item">
+                <span class="result-label">Application ID:</span>
+                <span class="result-value" id="resultAppId"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Farmer Name:</span>
+                <span class="result-value" id="resultFarmerName"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Status:</span>
+                <span class="result-value" id="resultStatus"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Department:</span>
+                <span class="result-value" id="resultDepartment"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Submitted Date:</span>
+                <span class="result-value" id="resultDate"></span>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 Department of Agriculture. All rights reserved.</p>
+    </footer>
+
+    <script src="auth.js"></script><script src="auth.js"></script><script src="auth.js"></script><script src="tracker.js"></script>
+</body>
+</html>
+
+
+
+
+

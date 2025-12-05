@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Analysis - Farmer Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-seedling"></i>
+                <span>Farmer Portal</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="application-form.html"><i class="fas fa-file-alt"></i> Application Form</a></li>
+                <li><a href="application-tracker.html"><i class="fas fa-search"></i> Application Tracker</a></li>
+                <li><a href="history.html"><i class="fas fa-history"></i> History</a></li>
+                <li><a href="fraud-analysis.html" class="active"><i class="fas fa-shield-alt"></i> Fraud Analysis</a></li>
+                <li id="userInfo"></li>
+                <li><a href="#" onclick="logout(); return false;" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="fraud-container">
+        <div class="fraud-header">
+            <i class="fas fa-shield-alt"></i>
+            <h1>Subsidy Leakage Detection</h1>
+            <p>AI-powered fraud detection and anomaly analysis</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="control-section">
+            <button onclick="runAnalysis()" class="btn btn-primary">
+                <i class="fas fa-brain"></i> Run Fraud Analysis
+            </button>
+            <button onclick="trainModel()" class="btn btn-secondary">
+                <i class="fas fa-graduation-cap"></i> Train Model
+            </button>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="fraud-stats-section" id="statsSection" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Detection Statistics</h2>
+            <div class="fraud-stats-grid">
+                <div class="fraud-stat-card total">
+                    <i class="fas fa-file-alt"></i>
+                    <div class="stat-content">
+                        <h3 id="totalApps">0</h3>
+                        <p>Total Applications Analyzed</p>
+                    </div>
+                </div>
+                <div class="fraud-stat-card flagged">
+                    <i class="fas fa-flag"></i>
+                    <div class="stat-content">
+                        <h3 id="flaggedCount">0</h3>
+                        <p>Flagged as Anomalies</p>
+                        <span class="percentage" id="flaggedPercent">0%</span>
+                    </div>
+                </div>
+                <div class="fraud-stat-card high-risk">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="stat-content">
+                        <h3 id="highRiskCount">0</h3>
+                        <p>High Risk</p>
+                    </div>
+                </div>
+                <div class="fraud-stat-card medium-risk">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div class="stat-content">
+                        <h3 id="mediumRiskCount">0</h3>
+                        <p>Medium Risk</p>
+                    </div>
+                </div>
+                <div class="fraud-stat-card low-risk">
+                    <i class="fas fa-info-circle"></i>
+                    <div class="stat-content">
+                        <h3 id="lowRiskCount">0</h3>
+                        <p>Low Risk</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flagged Applications Table -->
+        <div class="flagged-section" id="flaggedSection" style="display: none;">
+            <h2><i class="fas fa-flag"></i> Top Risk Applications</h2>
+            <div class="table-container">
+                <table class="fraud-table" id="fraudTable">
+                    <thead>
+                        <tr>
+                            <th>Application ID</th>
+                            <th>Risk Level</th>
+                            <th>Anomaly Score</th>
+                            <th>Fraud Indicators</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fraudTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Analysis Explanation -->
+        <div class="info-section">
+            <h2><i class="fas fa-lightbulb"></i> How Fraud Detection Works</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <i class="fas fa-robot"></i>
+                    <h3>Machine Learning</h3>
+                    <p>Uses Isolation Forest algorithm to detect anomalies based on land size, crop type, and geographic patterns.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <h3>Geographic Clustering</h3>
+                    <p>Identifies suspicious clusters of applications from the same district that may indicate coordinated fraud.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Statistical Analysis</h3>
+                    <p>Compares land holdings and subsidy claims against district and state averages to find outliers.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-balance-scale"></i>
+                    <h3>Norm Comparison</h3>
+                    <p>Validates fertilizer and seed requirements against standard agricultural norms for each crop type.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fraud Indicators Legend -->
+        <div class="legend-section">
+            <h3><i class="fas fa-info-circle"></i> Common Fraud Indicators</h3>
+            <ul class="fraud-indicators-list">
+                <li><i class="fas fa-exclamation-triangle"></i> <strong>Ghost Farmers:</strong> Unrealistic land holdings (too large or too small)</li>
+                <li><i class="fas fa-map-marker-alt"></i> <strong>Geographic Clustering:</strong> Unusual concentration of applications from same district</li>
+                <li><i class="fas fa-chart-area"></i> <strong>Land Size Anomalies:</strong> Significant deviation from district average</li>
+                <li><i class="fas fa-calculator"></i> <strong>Subsidy Mismatch:</strong> Expected vs actual requirements don't align with crop norms</li>
+                <li><i class="fas fa-brain"></i> <strong>ML Detection:</strong> Statistical anomaly identified by machine learning model</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Application Detail Modal -->
+    <div id="detailModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-shield-alt"></i> Fraud Risk Analysis</h2>
+                <span class="close" onclick="closeDetailModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalDetailBody">
+                <!-- Details populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeDetailModal()" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 Department of Agriculture. All rights reserved.</p>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="fraud-analysis.js"></script>
+</body>
+</html>

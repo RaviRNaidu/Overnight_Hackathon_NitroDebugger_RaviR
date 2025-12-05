@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application History - Farmer Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-seedling"></i>
+                <span>Farmer Portal</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="application-form.html"><i class="fas fa-file-alt"></i> Application Form</a></li>
+                <li><a href="application-tracker.html"><i class="fas fa-search"></i> Application Tracker</a></li>
+                <li><a href="history.html" class="active"><i class="fas fa-history"></i> History</a></li><li><a href="fraud-analysis.html"><i class="fas fa-shield-alt"></i> Fraud Analysis</a></li>
+                <li id="userInfo"></li>
+                <li><a href="#" onclick="logout(); return false;" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="history-container">
+        <div class="history-header">
+            <i class="fas fa-history"></i>
+            <h1>Application History</h1>
+            <p>View all submitted applications</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="filter-section">
+            <div class="filter-controls">
+                <input type="text" id="searchInput" placeholder="Search by Application ID, Farmer Name, or Mobile..." class="search-input">
+                <select id="statusFilter" class="filter-select">
+                    <option value="">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+                <button onclick="refreshApplications()" class="btn btn-secondary">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-card">
+                <i class="fas fa-file-alt"></i>
+                <div class="stat-content">
+                    <h3 id="totalCount">0</h3>
+                    <p>Total Applications</p>
+                </div>
+            </div>
+            <div class="stat-card pending">
+                <i class="fas fa-clock"></i>
+                <div class="stat-content">
+                    <h3 id="pendingCount">0</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+            <div class="stat-card approved">
+                <i class="fas fa-check-circle"></i>
+                <div class="stat-content">
+                    <h3 id="approvedCount">0</h3>
+                    <p>Approved</p>
+                </div>
+            </div>
+            <div class="stat-card rejected">
+                <i class="fas fa-times-circle"></i>
+                <div class="stat-content">
+                    <h3 id="rejectedCount">0</h3>
+                    <p>Rejected</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="history-table" id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Application ID</th>
+                        <th>Farmer Name</th>
+                        <th>Mobile Number</th>
+                        <th>State</th>
+                        <th>District</th>
+                        <th>Land (Acres)</th>
+                        <th>Crop Type</th>
+                        <th>Status</th>
+                        <th>Submitted Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <tr>
+                        <td colspan="10" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading applications...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="noDataMessage" class="no-data" style="display: none;">
+            <i class="fas fa-inbox"></i>
+            <p>No applications found</p>
+        </div>
+    </div>
+
+    <!-- Application Details Modal -->
+    <div id="detailsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-alt"></i> Application Details</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Details will be populated here -->
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal()" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 Department of Agriculture. All rights reserved.</p>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="history.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Analytics Dashboard - Farmer Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .ml-dashboard {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .test-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .test-form .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .prediction-result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .prediction-result.show {
+            display: block;
+        }
+        
+        .risk-low {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        
+        .risk-medium {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .risk-high {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .recommendation-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .warning-badge {
+            display: inline-block;
+            background: #ffc107;
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 5px 5px 5px 0;
+        }
+        
+        .metric-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 5px 5px 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1>🌾 Farmer Portal - ML Analytics</h1>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="ml-analytics-integrated.html" class="active">ML Analytics</a>
+                <a href="index.html">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="ml-dashboard">
+        <div class="dashboard-header">
+            <h1>🤖 Machine Learning Analytics Dashboard</h1>
+            <p>Integrated with Hackathon_Nitro ML Models - Real-time Fraud Detection & Insights</p>
+        </div>
+
+        <!-- Model Status Section -->
+        <div class="section">
+            <h2>📊 ML Model Status</h2>
+            <div id="modelStatus" class="loading">Loading model status...</div>
+        </div>
+
+        <!-- Farmer Insights Section -->
+        <div class="section">
+            <h2>👨‍🌾 Farmer Insights from Historical Data</h2>
+            <div id="farmerInsights" class="stats-grid">
+                <div class="loading">Loading insights...</div>
+            </div>
+        </div>
+
+        <!-- Seasonal Recommendations Section -->
+        <div class="section">
+            <h2>🌱 Seasonal Recommendations</h2>
+            <div id="seasonalRecommendations" class="loading">Loading recommendations...</div>
+        </div>
+
+        <!-- Test Fraud Prediction Section -->
+        <div class="section">
+            <h2>🔍 Test Fraud Prediction</h2>
+            <form id="testPredictionForm" class="test-form">
+                <div class="form-group">
+                    <label>Farmer Name</label>
+                    <input type="text" id="farmerName" value="Test Farmer" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Aadhaar Number</label>
+                    <input type="text" id="aadhaar" value="1234-5678-9012" pattern="\d{4}-\d{4}-\d{4}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="text" id="mobile" value="9876543210" pattern="\d{10}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>State</label>
+                    <input type="text" id="state" value="Maharashtra" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>District</label>
+                    <input type="text" id="district" value="Pune" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Total Land (acres)</label>
+                    <input type="number" id="landAcres" value="5" step="0.1" min="0.1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Crop Type</label>
+                    <select id="cropType" required>
+                        <option value="Wheat">Wheat</option>
+                        <option value="Rice">Rice</option>
+                        <option value="Maize">Maize</option>
+                        <option value="Cotton">Cotton</option>
+                        <option value="Soybean">Soybean</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Fertilizer Qty (kg)</label>
+                    <input type="number" id="fertilizerQty" value="100" step="1" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Seed Qty (kg)</label>
+                    <input type="number" id="seedQty" value="20" step="1" min="0" required>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label>Address</label>
+                    <input type="text" id="address" value="Test Village, Pune" required>
+                </div>
+                
+                <div class="form-group full-width">
+                    <button type="submit" class="btn btn-primary">🔍 Predict Fraud Risk</button>
+                </div>
+            </form>
+            
+            <div id="predictionResult" class="prediction-result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        // Load model status
+        async function loadModelStatus() {
+            try {
+                const response = await fetch(`${API_URL}/api/ml/model-status`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const status = data;
+                    const statusHTML = `
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3>Models Loaded</h3>
+                                <div class="stat-value">${status.models_loaded ? '✓' : '✗'}</div>
+                                <div class="stat-label">${status.models_loaded ? 'Active' : 'Inactive'}</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>XGBoost Available</h3>
+                                <div class="stat-value">${status.xgboost_available ? '✓' : '✗'}</div>
+                                <div class="stat-label">${status.xgboost_available ? 'Available' : 'Not Available'}</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Farmers Dataset</h3>
+                                <div class="stat-value">${status.data_stats.farmers}</div>
+                                <div class="stat-label">Records</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Transactions</h3>
+                                <div class="stat-value">${status.data_stats.transactions}</div>
+                                <div class="stat-label">Historical Data</div>
+                            </div>
+                        </div>
+                        ${status.metrics && Object.keys(status.metrics).length > 0 ? `
+                            <div style="margin-top: 20px;">
+                                <h3>Model Performance Metrics</h3>
+                                <div class="metrics-display">
+                                    ${Object.entries(status.metrics).map(([key, value]) => 
+                                        `<span class="metric-badge">${key}: ${typeof value === 'number' ? value.toFixed(4) : value}</span>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    `;
+                    document.getElementById('modelStatus').innerHTML = statusHTML;
+                }
+            } catch (error) {
+                document.getElementById('modelStatus').innerHTML = 
+                    `<p style="color: red;">Error loading model status: ${error.message}</p>`;
+            }
+        }
+
+        // Load farmer insights
+        async function loadFarmerInsights() {
+            try {
+                const response = await fetch(`${API_URL}/api/ml/farmer-insights`);
+                const data = await response.json();
+                
+                if (data.success && data.insights) {
+                    const insights = data.insights;
+                    const insightsHTML = `
+                        <div class="stat-card">
+                            <h3>Total Farmers</h3>
+                            <div class="stat-value">${insights.total_farmers || 0}</div>
+                            <div class="stat-label">In Database</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Ghost Farmers</h3>
+                            <div class="stat-value">${insights.ghost_farmers || 0}</div>
+                            <div class="stat-label">Identified</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Transactions</h3>
+                            <div class="stat-value">${insights.total_transactions || 0}</div>
+                            <div class="stat-label">Processed</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Fraud Rate</h3>
+                            <div class="stat-value">${insights.fraud_rate || 0}%</div>
+                            <div class="stat-label">Suspected Cases</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Avg Transactions</h3>
+                            <div class="stat-value">${insights.avg_transactions_per_farmer || 0}</div>
+                            <div class="stat-label">Per Farmer</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Fraud Cases</h3>
+                            <div class="stat-value">${insights.suspected_fraud_cases || 0}</div>
+                            <div class="stat-label">Total Detected</div>
+                        </div>
+                    `;
+                    document.getElementById('farmerInsights').innerHTML = insightsHTML;
+                }
+            } catch (error) {
+                document.getElementById('farmerInsights').innerHTML = 
+                    `<p style="color: red;">Error loading insights: ${error.message}</p>`;
+            }
+        }
+
+        // Load seasonal recommendations
+        async function loadSeasonalRecommendations() {
+            try {
+                const response = await fetch(`${API_URL}/api/ml/seasonal-recommendations`);
+                const data = await response.json();
+                
+                if (data.success && data.recommendations) {
+                    const rec = data.recommendations;
+                    const recHTML = `
+                        <div class="recommendations-grid">
+                            <div class="recommendation-card">
+                                <h3>🗓️ Current Season</h3>
+                                <p><strong>Month:</strong> ${rec.current_month}</p>
+                                <p><strong>Season:</strong> ${rec.current_season}</p>
+                            </div>
+                            <div class="recommendation-card">
+                                <h3>🌾 Recommended Crops</h3>
+                                <p>${rec.recommended_crops.join(', ')}</p>
+                            </div>
+                            <div class="recommendation-card">
+                                <h3>🧪 Recommended Products</h3>
+                                <p>${rec.recommended_products.join(', ')}</p>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('seasonalRecommendations').innerHTML = recHTML;
+                }
+            } catch (error) {
+                document.getElementById('seasonalRecommendations').innerHTML = 
+                    `<p style="color: red;">Error loading recommendations: ${error.message}</p>`;
+            }
+        }
+
+        // Handle prediction form
+        document.getElementById('testPredictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const application = {
+                farmer_name: document.getElementById('farmerName').value,
+                aadhaar_number: document.getElementById('aadhaar').value,
+                mobile_number: document.getElementById('mobile').value,
+                state: document.getElementById('state').value,
+                district: document.getElementById('district').value,
+                address: document.getElementById('address').value,
+                total_land_acres: parseFloat(document.getElementById('landAcres').value),
+                crop_type: document.getElementById('cropType').value,
+                fertilizer_qty: parseFloat(document.getElementById('fertilizerQty').value),
+                seed_qty: parseFloat(document.getElementById('seedQty').value),
+                subsidy_type: 'fertilizer'
+            };
+            
+            const resultDiv = document.getElementById('predictionResult');
+            resultDiv.innerHTML = '<div class="loading">Analyzing application...</div>';
+            resultDiv.className = 'prediction-result show';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/ml/predict-fraud`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(application)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.prediction) {
+                    const pred = data.prediction;
+                    const riskClass = pred.risk_level === 'HIGH' ? 'risk-high' : 
+                                     pred.risk_level === 'MEDIUM' ? 'risk-medium' : 'risk-low';
+                    
+                    resultDiv.className = `prediction-result show ${riskClass}`;
+                    resultDiv.innerHTML = `
+                        <h3>🔍 Fraud Prediction Results</h3>
+                        <div class="stats-grid">
+                            <div>
+                                <strong>Fraud Score:</strong>
+                                <div class="stat-value" style="font-size: 24px;">${(pred.fraud_score * 100).toFixed(2)}%</div>
+                            </div>
+                            <div>
+                                <strong>Risk Level:</strong>
+                                <div class="stat-value" style="font-size: 24px;">${pred.risk_level}</div>
+                            </div>
+                            <div>
+                                <strong>Is Fraud:</strong>
+                                <div class="stat-value" style="font-size: 24px;">${pred.is_fraud ? '✗ Yes' : '✓ No'}</div>
+                            </div>
+                            <div>
+                                <strong>Confidence:</strong>
+                                <div class="stat-value" style="font-size: 24px;">${(pred.confidence * 100).toFixed(2)}%</div>
+                            </div>
+                        </div>
+                        
+                        ${pred.warnings.length > 0 ? `
+                            <div style="margin-top: 20px;">
+                                <h4>⚠️ Warnings</h4>
+                                ${pred.warnings.map(w => `<span class="warning-badge">${w}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        <div style="margin-top: 20px;">
+                            <h4>📊 Analysis Details</h4>
+                            <p><strong>Isolation Forest Score:</strong> ${(pred.details.isolation_forest_score * 100).toFixed(2)}%</p>
+                            ${pred.details.xgboost_score ? 
+                                `<p><strong>XGBoost Score:</strong> ${(pred.details.xgboost_score * 100).toFixed(2)}%</p>` : ''}
+                            <p><strong>Quantity per Hectare:</strong> ${pred.details.quantity_per_hectare} kg/ha</p>
+                            <p><strong>Quantity vs Allowed:</strong> ${pred.details.quantity_vs_allowed.toFixed(2)}</p>
+                            <p><strong>Subsidy Amount:</strong> ₹${pred.details.subsidy_amount}</p>
+                            <p><strong>Claimed Land:</strong> ${pred.details.claimed_land_ha} hectares</p>
+                            <p><strong>Total Quantity:</strong> ${pred.details.total_quantity_kg} kg</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'prediction-result show risk-high';
+                resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        });
+
+        // Initialize dashboard
+        window.addEventListener('load', () => {
+            loadModelStatus();
+            loadFarmerInsights();
+            loadSeasonalRecommendations();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Government Portal - Application Review</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .gov-portal {
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .portal-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .portal-header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        
+        .officer-info {
+            text-align: right;
+        }
+        
+        .officer-info .name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .officer-info .role {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 4px solid #1e3c72;
+        }
+        
+        .stat-card.pending {
+            border-left-color: #ffc107;
+        }
+        
+        .stat-card.approved {
+            border-left-color: #28a745;
+        }
+        
+        .stat-card.rejected {
+            border-left-color: #dc3545;
+        }
+        
+        .stat-card.high-risk {
+            border-left-color: #ff6b6b;
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        
+        .filters-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .applications-section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .applications-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .applications-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+        }
+        
+        .applications-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .applications-table tbody tr:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-under-review {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .risk-badge {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .risk-low {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .risk-safe {
+            background: #d4edda;
+            color: #155724;
+            font-weight: bold;
+        }
+        
+        .risk-risk {
+            background: #f8d7da;
+            color: #721c24;
+            font-weight: bold;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .btn-view {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-view:hover {
+            background: #138496;
+        }
+        
+        .btn-approve {
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .btn-approve:hover {
+            background: #218838;
+        }
+        
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .btn-reject:hover {
+            background: #c82333;
+        }
+        
+        /* Quick action buttons in table */
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-buttons .btn {
+            padding: 5px 10px;
+            font-size: 12px;
+            min-width: auto;
+        }
+        
+        .action-buttons .btn-approve,
+        .action-buttons .btn-reject {
+            padding: 5px 8px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: #1e3c72;
+            color: white;
+            padding: 10px 20px;
+        }
+        
+        .btn-primary:hover {
+            background: #2a5298;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        
+        .modal.show {
+            display: block;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 0;
+            width: 90%;
+            max-width: 900px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+        }
+        
+        .close {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover {
+            opacity: 0.8;
+        }
+        
+        .modal-body {
+            padding: 30px;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .detail-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 13px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
+        .detail-value {
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .ml-analysis {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .ml-analysis h3 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+        
+        .review-section {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .review-section h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+        
+        .modal-footer {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-radius: 0 0 10px 10px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #1e3c72;
+        }
+        
+        .fraud-warning {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #dc3545;
+            margin: 15px 0;
+        }
+        
+        .fraud-warning h4 {
+            margin-top: 0;
+        }
+        
+        .warning-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+        }
+        
+        .warning-list li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .warning-list li:before {
+            content: "⚠️";
+            position: absolute;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1>🏛️ Government Portal</h1>
+            <div class="nav-links">
+                <a href="government-portal.html" class="active">Applications</a>
+                <a href="ml-analytics-integrated.html">ML Analytics</a>
+                <a href="government-login.html" onclick="logout(); return false;">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="gov-portal">
+        <div class="portal-header">
+            <div>
+                <h1>📋 Application Review Dashboard</h1>
+                <p style="margin: 5px 0 0 0; opacity: 0.9;">Review and manage subsidy applications</p>
+            </div>
+            <div class="officer-info">
+                <div class="name" id="officerName">Agriculture Officer</div>
+                <div class="role">Department of Agriculture</div>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="stats-section">
+            <div class="stat-card pending">
+                <div class="stat-label">Pending Review</div>
+                <div class="stat-value" id="statPending">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Under Review</div>
+                <div class="stat-value" id="statUnderReview">0</div>
+            </div>
+            <div class="stat-card approved">
+                <div class="stat-label">Approved</div>
+                <div class="stat-value" id="statApproved">0</div>
+            </div>
+            <div class="stat-card rejected">
+                <div class="stat-label">Rejected</div>
+                <div class="stat-value" id="statRejected">0</div>
+            </div>
+            <div class="stat-card high-risk">
+                <div class="stat-label">Risk Flagged</div>
+                <div class="stat-value" id="statHighRisk">0</div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <h3 style="margin-top: 0;">🔍 Filters</h3>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select id="filterStatus">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="under_review">Under Review</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Risk Level</label>
+                    <select id="filterRisk">
+                        <option value="">All Risks</option>
+                        <option value="SAFE">✓ Safe</option>
+                        <option value="RISK">⚠️ Risk</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>State</label>
+                    <select id="filterState">
+                        <option value="">All States</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>District</label>
+                    <select id="filterDistrict">
+                        <option value="">All Districts</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Search</label>
+                    <input type="text" id="searchInput" placeholder="Search by name, ID, Aadhaar...">
+                </div>
+                <div class="filter-group" style="align-self: end;">
+                    <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Applications Table -->
+        <div class="applications-section">
+            <h3 style="margin-top: 0;">📊 Applications List</h3>
+            <div id="applicationsContainer">
+                <div class="loading">Loading applications...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Detail Modal -->
+    <div id="applicationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📄 Application Details</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8002';
+        let allApplications = [];
+        let currentApplication = null;
+        let currentUser = null;
+
+        // Check authentication on page load
+        window.addEventListener('load', () => {
+            checkAuthentication();
+        });
+
+        function checkAuthentication() {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                // Redirect to government login page
+                alert('Please login to access the Government Portal');
+                window.location.href = 'government-login.html';
+                return;
+            }
+            
+            currentUser = JSON.parse(user);
+            
+            // Verify user is from government department
+            if (currentUser.department !== 'government') {
+                alert('Access denied. This portal is for government officers only.');
+                localStorage.removeItem('user');
+                localStorage.removeItem('userId');
+                window.location.href = 'government-login.html';
+                return;
+            }
+            
+            // Update officer info in header
+            const officerInfo = document.querySelector('.officer-info');
+            if (officerInfo) {
+                officerInfo.innerHTML = `
+                    <div class="name">${currentUser.name}</div>
+                    <div class="role">${currentUser.department} Department</div>
+                    <button onclick="logout()" style="margin-top: 10px; padding: 5px 15px; background: rgba(255,255,255,0.2); border: 1px solid white; color: white; border-radius: 5px; cursor: pointer;">Logout</button>
+                `;
+            }
+            
+            loadApplications();
+            loadFilterOptions();
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('userId');
+            window.location.href = 'government-login.html';
+        }
+
+        async function loadApplications() {
+            try {
+                const response = await fetch(`${API_URL}/api/applications`);
+                const applications = await response.json();
+                
+                // Backend returns array directly, not wrapped in {success, applications}
+                if (Array.isArray(applications)) {
+                    allApplications = applications;
+                    
+                    // Get ML predictions for all applications
+                    await enrichWithMLPredictions();
+                    
+                    displayApplications(allApplications);
+                    updateStatistics(allApplications);
+                } else {
+                    console.error('Unexpected response format:', applications);
+                    document.getElementById('applicationsContainer').innerHTML = 
+                        `<div class="no-data">Error: Unexpected data format</div>`;
+                }
+            } catch (error) {
+                console.error('Error loading applications:', error);
+                document.getElementById('applicationsContainer').innerHTML = 
+                    `<div class="no-data">Error loading applications: ${error.message}</div>`;
+            }
+        }
+
+        async function enrichWithMLPredictions() {
+            // Get ML predictions for each application
+            for (let app of allApplications) {
+                try {
+                    const response = await fetch(`${API_URL}/api/ml/predict-fraud`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(app)
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        app.ml_prediction = data.prediction;
+                    }
+                } catch (error) {
+                    console.error(`Error getting ML prediction for ${app.application_id}:`, error);
+                }
+            }
+        }
+
+        function displayApplications(applications) {
+            if (applications.length === 0) {
+                document.getElementById('applicationsContainer').innerHTML = 
+                    '<div class="no-data">No applications found</div>';
+                return;
+            }
+
+            const tableHTML = `
+                <table class="applications-table">
+                    <thead>
+                        <tr>
+                            <th>Application ID</th>
+                            <th>Farmer Name</th>
+                            <th>Aadhaar</th>
+                            <th>State/District</th>
+                            <th>Land (acres)</th>
+                            <th>Crop Type</th>
+                            <th>Requested Qty (kg)</th>
+                            <th>Status</th>
+                            <th>Risk Level</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${applications.map(app => `
+                            <tr onclick="viewApplication('${app.application_id}')">
+                                <td><strong>${app.application_id}</strong></td>
+                                <td>${app.farmer_name}</td>
+                                <td>${app.aadhaar_number}</td>
+                                <td>${app.state} / ${app.district}</td>
+                                <td>${app.total_land_acres}</td>
+                                <td>${app.crop_type}</td>
+                                <td>${parseFloat(app.fertilizer_qty) + parseFloat(app.seed_qty)}</td>
+                                <td><span class="status-badge status-${app.status.replace('_', '-')}">${app.status.replace('_', ' ')}</span></td>
+                                <td>${app.ml_prediction ? 
+                                    `<span class="risk-badge risk-${app.ml_prediction.risk_level.toLowerCase()}">${app.ml_prediction.risk_level}</span>` : 
+                                    '<span class="risk-badge">N/A</span>'}</td>
+                                <td>${new Date(app.submitted_date).toLocaleDateString()}</td>
+                                <td onclick="event.stopPropagation();">
+                                    <div class="action-buttons">
+                                        <button class="btn btn-view" onclick="viewApplication('${app.application_id}')">View</button>
+                                        ${app.status === 'pending' || app.status === 'under_review' ? `
+                                            <button class="btn btn-approve" onclick="quickApprove('${app.application_id}')" title="Quick Approve">✓</button>
+                                            <button class="btn btn-reject" onclick="quickReject('${app.application_id}')" title="Quick Reject">✗</button>
+                                        ` : ''}
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('applicationsContainer').innerHTML = tableHTML;
+        }
+
+        function updateStatistics(applications) {
+            const stats = {
+                pending: 0,
+                under_review: 0,
+                approved: 0,
+                rejected: 0,
+                high_risk: 0
+            };
+
+            applications.forEach(app => {
+                if (app.status === 'pending') stats.pending++;
+                else if (app.status === 'under_review') stats.under_review++;
+                else if (app.status === 'approved') stats.approved++;
+                else if (app.status === 'rejected') stats.rejected++;
+                
+                if (app.ml_prediction && app.ml_prediction.risk_level === 'RISK') {
+                    stats.high_risk++;
+                }
+            });
+
+            document.getElementById('statPending').textContent = stats.pending;
+            document.getElementById('statUnderReview').textContent = stats.under_review;
+            document.getElementById('statApproved').textContent = stats.approved;
+            document.getElementById('statRejected').textContent = stats.rejected;
+            document.getElementById('statHighRisk').textContent = stats.high_risk;
+        }
+
+        async function viewApplication(applicationId) {
+            const app = allApplications.find(a => a.application_id === applicationId);
+            if (!app) return;
+            
+            currentApplication = app;
+            
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Application ID</div>
+                        <div class="detail-value">${app.application_id}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value">
+                            <span class="status-badge status-${app.status.replace('_', '-')}">${app.status.replace('_', ' ')}</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Farmer Name</div>
+                        <div class="detail-value">${app.farmer_name}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Aadhaar Number</div>
+                        <div class="detail-value">${app.aadhaar_number}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Mobile Number</div>
+                        <div class="detail-value">${app.mobile_number}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">State</div>
+                        <div class="detail-value">${app.state}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">District</div>
+                        <div class="detail-value">${app.district}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Address</div>
+                        <div class="detail-value">${app.address}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Total Land</div>
+                        <div class="detail-value">${app.total_land_acres} acres</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Crop Type</div>
+                        <div class="detail-value">${app.crop_type}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Fertilizer Quantity</div>
+                        <div class="detail-value">${app.fertilizer_qty} kg</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Seed Quantity</div>
+                        <div class="detail-value">${app.seed_qty} kg</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Submitted Date</div>
+                        <div class="detail-value">${new Date(app.submitted_date).toLocaleString()}</div>
+                    </div>
+                </div>
+
+                ${app.ml_prediction ? `
+                    <div class="ml-analysis">
+                        <h3>🤖 ML Fraud Analysis</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">Fraud Score</div>
+                                <div class="detail-value">${(app.ml_prediction.fraud_score * 100).toFixed(2)}%</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Risk Level</div>
+                                <div class="detail-value">
+                                    <span class="risk-badge risk-${app.ml_prediction.risk_level.toLowerCase()}">${app.ml_prediction.risk_level}</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Is Fraudulent</div>
+                                <div class="detail-value">${app.ml_prediction.is_fraud ? '⚠️ Yes' : '✓ No'}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Confidence</div>
+                                <div class="detail-value">${(app.ml_prediction.confidence * 100).toFixed(2)}%</div>
+                            </div>
+                        </div>
+                        
+                        ${app.ml_prediction.warnings && app.ml_prediction.warnings.length > 0 ? `
+                            <div class="fraud-warning">
+                                <h4>⚠️ Warnings Detected</h4>
+                                <ul class="warning-list">
+                                    ${app.ml_prediction.warnings.map(w => `<li>${w}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        
+                        ${app.ml_prediction.details ? `
+                            <div style="margin-top: 15px;">
+                                <strong>Analysis Details:</strong>
+                                <p>Quantity per hectare: ${app.ml_prediction.details.quantity_per_hectare} kg/ha</p>
+                                <p>Quantity vs Allowed: ${app.ml_prediction.details.quantity_vs_allowed.toFixed(2)}</p>
+                                <p>Subsidy Amount: ₹${app.ml_prediction.details.subsidy_amount}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : ''}
+
+                ${app.status === 'pending' || app.status === 'under_review' ? `
+                    <div class="review-section">
+                        <h3>✍️ Review Application</h3>
+                        <div class="form-group">
+                            <label>Reviewer Comments</label>
+                            <textarea id="reviewComments" placeholder="Enter your review comments..."></textarea>
+                        </div>
+                    </div>
+                ` : ''}
+                
+                ${app.review_comments ? `
+                    <div class="detail-item" style="grid-column: 1 / -1; margin-top: 15px;">
+                        <div class="detail-label">Review Comments</div>
+                        <div class="detail-value">${app.review_comments}</div>
+                    </div>
+                ` : ''}
+            `;
+
+            // Add footer with action buttons
+            const modalFooter = `
+                <div class="modal-footer">
+                    ${app.status === 'pending' || app.status === 'under_review' ? `
+                        <button class="btn btn-approve" onclick="updateApplicationStatus('${app.application_id}', 'approved')">✓ Approve</button>
+                        <button class="btn btn-reject" onclick="updateApplicationStatus('${app.application_id}', 'rejected')">✗ Reject</button>
+                        ${app.status === 'pending' ? `
+                            <button class="btn btn-primary" onclick="updateApplicationStatus('${app.application_id}', 'under_review')">📝 Mark Under Review</button>
+                        ` : ''}
+                    ` : ''}
+                    <button class="btn" onclick="closeModal()" style="background: #6c757d; color: white;">Close</button>
+                </div>
+            `;
+
+            modalBody.insertAdjacentHTML('afterend', modalFooter);
+            document.getElementById('applicationModal').classList.add('show');
+        }
+
+        async function updateApplicationStatus(applicationId, newStatus) {
+            const comments = document.getElementById('reviewComments')?.value || '';
+            
+            if ((newStatus === 'approved' || newStatus === 'rejected') && !comments.trim()) {
+                alert('Please provide review comments before ' + newStatus.replace('_', ' ') + ' the application.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/applications/${applicationId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        review_comments: comments,
+                        reviewed_by: currentUser ? currentUser.name : 'Unknown'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`Application ${newStatus.replace('_', ' ')} successfully!`);
+                    closeModal();
+                    loadApplications(); // Reload the list
+                } else {
+                    alert('Error updating application: ' + (data.detail || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error updating application: ' + error.message);
+            }
+        }
+
+        // Quick approve function for table buttons
+        async function quickApprove(applicationId) {
+            const app = allApplications.find(a => a.application_id === applicationId);
+            if (!app) return;
+
+            const comments = prompt(`✓ APPROVE Application ${applicationId}\n\nFarmer: ${app.farmer_name}\nCrop: ${app.crop_type}\nLand: ${app.total_land_acres} acres\n\nEnter approval comments (required):`, 'Application meets all eligibility criteria. Approved for subsidy.');
+            if (comments === null) return; // Cancelled
+            
+            if (!comments.trim()) {
+                alert('❌ Comments are required to approve an application.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/applications/${applicationId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: 'approved',
+                        review_comments: comments,
+                        reviewed_by: currentUser ? currentUser.name : 'Agriculture Officer'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    let message = `✓ Application ${applicationId} APPROVED successfully!\n\n`;
+                    if (data.sms_sent) {
+                        message += `📱 SMS notification sent to farmer (${app.mobile_number}):\n"${data.notification}"`;
+                    }
+                    alert(message);
+                    loadApplications(); // Reload the list
+                } else {
+                    alert('❌ Error approving application: ' + (data.detail || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('❌ Error approving application: ' + error.message);
+            }
+        }
+
+        // Quick reject function for table buttons
+        async function quickReject(applicationId) {
+            const app = allApplications.find(a => a.application_id === applicationId);
+            if (!app) return;
+
+            const comments = prompt(`✗ REJECT Application ${applicationId}\n\nFarmer: ${app.farmer_name}\nCrop: ${app.crop_type}\nLand: ${app.total_land_acres} acres\n\nEnter rejection reason (required):`, 'Insufficient land ownership verification.');
+            if (comments === null) return; // Cancelled
+            
+            if (!comments.trim()) {
+                alert('❌ Rejection reason is required.');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to REJECT application ${applicationId}?\n\nThis will notify the farmer via SMS.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/applications/${applicationId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: 'rejected',
+                        review_comments: comments,
+                        reviewed_by: currentUser ? currentUser.name : 'Agriculture Officer'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    let message = `Application ${applicationId} has been REJECTED.\n\n`;
+                    if (data.sms_sent) {
+                        message += `📱 SMS notification sent to farmer (${app.mobile_number}):\n"${data.notification}"`;
+                    }
+                    alert(message);
+                    loadApplications(); // Reload the list
+                } else {
+                    alert('❌ Error rejecting application: ' + (data.detail || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('❌ Error rejecting application: ' + error.message);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('applicationModal').classList.remove('show');
+            currentApplication = null;
+        }
+
+        function applyFilters() {
+            const status = document.getElementById('filterStatus').value;
+            const risk = document.getElementById('filterRisk').value;
+            const state = document.getElementById('filterState').value;
+            const district = document.getElementById('filterDistrict').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = allApplications.filter(app => {
+                if (status && app.status !== status) return false;
+                if (risk && app.ml_prediction && app.ml_prediction.risk_level !== risk) return false;
+                if (state && app.state !== state) return false;
+                if (district && app.district !== district) return false;
+                if (search) {
+                    const searchable = `${app.farmer_name} ${app.application_id} ${app.aadhaar_number}`.toLowerCase();
+                    if (!searchable.includes(search)) return false;
+                }
+                return true;
+            });
+
+            displayApplications(filtered);
+        }
+
+        function loadFilterOptions() {
+            // Extract unique states and districts
+            const states = [...new Set(allApplications.map(app => app.state))];
+            const districts = [...new Set(allApplications.map(app => app.district))];
+
+            const stateSelect = document.getElementById('filterState');
+            const districtSelect = document.getElementById('filterDistrict');
+
+            states.forEach(state => {
+                const option = document.createElement('option');
+                option.value = state;
+                option.textContent = state;
+                stateSelect.appendChild(option);
+            });
+
+            districts.forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                districtSelect.appendChild(option);
+            });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('applicationModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Real-time search
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('searchInput')?.addEventListener('input', applyFilters);
+        });
+    </script>
+</body>
+</html>
